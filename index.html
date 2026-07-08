@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cinema Seat Booking - Kelompok 4</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header class="group-banner">
+    <h1 class="banner-title">UAS PRAK PEMROGRAMAN WEB</h1>
+    <div class="banner-members">
+      <h3>Kelompok 4</h3>
+      <p>Anggota: Ani, Riza, Heber</p>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="booking-section">
+      <h2>Bioskop XXI - Pemesanan Kursi</h2>
+      
+      <div class="filter-group">
+        <div class="form-control">
+          <label for="movieSelect">Pilih Film:</label>
+          <select id="movieSelect" onchange="changeShow()">
+            <option value="Avengers: Doomsday">Avengers: Doomsday</option>
+            <option value="Batman: Resurgence">Batman: Resurgence</option>
+            <option value="Avatar 3">Avatar 3</option>
+          </select>
+        </div>
+        <div class="form-control">
+          <label for="daySelect">Pilih Hari:</label>
+          <select id="daySelect" onchange="changeShow()">
+            <option value="Senin (Weekday)">Senin (Weekday)</option>
+            <option value="Selasa (Weekday)">Selasa (Weekday)</option>
+            <option value="Rabu (Weekday)">Rabu (Weekday)</option>
+            <option value="Kamis (Weekday)">Kamis (Weekday)</option>
+            <option value="Jumat (Weekday)">Jumat (Weekday)</option>
+            <option value="Sabtu (Weekend)">Sabtu (Weekend)</option>
+            <option value="Minggu (Weekend)">Minggu (Weekend)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="screen">LAYAR BIOSKOP</div>
+
+      <div class="seating-plan" id="seatingPlan"></div>
+
+      <div class="legend">
+        <div class="legend-item"><div class="seat available"></div> Tersedia</div>
+        <div class="legend-item"><div class="seat selected"></div> Dipilih</div>
+        <div class="legend-item"><div class="seat booked"></div> Terisi</div>
+      </div>
+
+      <div class="main-form">
+        <div class="form-control">
+          <label for="customerName">Nama Pemesan:</label>
+          <input type="text" id="customerName" placeholder="Masukkan nama Anda...">
+        </div>
+        
+        <div class="payment-info">
+          <p>Kursi Terpilih: <span id="infoSeats">-</span></p>
+          <p>Kategori Hari: <span id="infoCategory">Weekday</span></p>
+          <p>Total Harga: <span id="infoPrice">Rp 0</span></p>
+        </div>
+
+        <div class="form-control">
+          <label for="paymentMethod">Metode Pembayaran:</label>
+          <select id="paymentMethod">
+            <option value="Gopay">Gopay</option>
+            <option value="Dana">Dana</option>
+            <option value="Transfer Bank">Transfer Bank</option>
+          </select>
+        </div>
+        
+        <div class="action-buttons">
+          <button id="btnSave" onclick="saveBooking()">Bayar & Pesan Kursi</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="data-section">
+      <h3>Daftar Pesanan & Pembayaran</h3>
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th>Nama</th>
+              <th>Film</th>
+              <th>Hari</th>
+              <th>Kursi</th>
+              <th>Total</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="bookingTableBody"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <!-- Modal Struk Transaksi -->
+  <div id="paymentModal" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Struk Transaksi Bioskop</h3>
+      </div>
+      <div class="modal-body">
+        <div class="ticket-detail">
+          <p><strong>Nama Pemesan:</strong> <span id="mdlName">-</span></p>
+          <p><strong>Film:</strong> <span id="mdlMovie">-</span></p>
+          <p><strong>Hari / Jadwal:</strong> <span id="mdlDay">-</span></p>
+          <p><strong>Nomor Kursi:</strong> <span id="mdlSeats" class="highlight-text">-</span></p>
+          <p><strong>Metode Pembayaran:</strong> <span id="mdlMethod">-</span></p>
+          <hr class="modal-divider">
+          <p><strong>Status:</strong> <span class="badge-paid">LUNAS</span></p>
+          <p class="total-payment"><strong>Total Bayar:</strong> <span id="mdlPrice">Rp 0</span></p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-close-modal" onclick="closeModal()">Selesai & Cetak</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Konfirmasi Hapus -->
+  <div id="deleteModal" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header" style="border-bottom: 2px solid #ff5722;">
+        <h3>Konfirmasi Hapus</h3>
+      </div>
+      <div class="modal-body">
+        <p style="text-align: center; margin-bottom: 10px;">Apakah Anda yakin ingin menghapus pesanan ini?</p>
+        <div class="payment-info" style="margin-top: 15px; border-left-color: #ff5722;">
+          <p>Nama Pemesan: <span id="delInfoName">-</span></p>
+          <p>Nomor Kursi: <span id="delInfoSeats" style="color: #ff5722;">-</span></p>
+        </div>
+        <input type="hidden" id="deleteBookingId">
+      </div>
+      <div class="modal-footer">
+        <div class="action-buttons">
+          <button onclick="confirmDelete()" class="btn-danger">Ya, Hapus</button>
+          <button onclick="closeDeleteModal()" style="background: #393e46;">Batal</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
